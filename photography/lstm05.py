@@ -67,12 +67,12 @@ model.add(LSTM(hidden_neurons, batch_input_shape=(None, length_of_sequences, in_
 model.add(Dense(in_out_neurons))
 model.add(Activation("linear"))
 model.compile(loss="mean_squared_error", optimizer="rmsprop")
-model.fit(X_train, y_train, batch_size=600, nb_epoch=15, validation_split=0.05)
+model.fit(X_train, y_train, batch_size=600, epochs=15, validation_split=0.05)
 
 # early stopping
 early_stopping = EarlyStopping(monitor='val_loss', patience=2)
 
-model.fit(X_train, y_train, batch_size=600, nb_epoch=15, validation_split=0.05, callbacks=[early_stopping])
+model.fit(X_train, y_train, batch_size=600, epochs=15, validation_split=0.05, callbacks=[early_stopping])
 
 # 予測
 
