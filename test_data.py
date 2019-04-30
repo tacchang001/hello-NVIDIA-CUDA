@@ -74,7 +74,7 @@ def get_data_dont_use():
 
 
 def get_data():
-    return noisy_sin_wave(begin=0, cycle=2, n=100)
+    return noisy_sin_wave(begin=0, cycle=4, n=100)
 
 
 def sin_wave(begin=0, cycle=1, n=100):

@@ -44,31 +44,11 @@ df = get_data()
 n = df.shape[0]
 p = df.shape[1]
 train_start = 0
-train_end = int(np.floor(0.8 * n))
+train_end = int(np.floor(0.5 * n))
 test_start = train_end + 1
 test_end = n
 train = df.loc[np.arange(train_start, train_end), :]
-# print(data_train.tail())
 test = df.loc[np.arange(test_start, test_end), :]
-# print(data_test.tail())
-
-# train_lstm_in = []
-# train_lstm_out = []
-# for i in range(len(train) - _WINDOW_LEN):
-#     temp = train[i:(i + _WINDOW_LEN)].copy()
-#     # for col in train:
-#     #     temp.loc[:, col] = temp[col] / temp[col].iloc[0] - 1
-#     train_lstm_in.append(temp)
-# # lstm_train_out = (train['wave'][_WINDOW_LEN:].values / train['wave'][:-_WINDOW_LEN].values) - 1
-# train_lstm_out = pd.DataFrame({'wave': train['wave'][_WINDOW_LEN:]})
-#
-# print(train.head(20))
-# print('---')
-# print(train_lstm_in[0])
-# print('---')
-# print(type(train_lstm_out))
-# print(train_lstm_out.head(1))
-# print('---')
 
 # LSTMへの入力用に処理（訓練）
 train_lstm_in = []
@@ -77,15 +57,20 @@ for i in range(len(data_train) - _WINDOW_LEN):
     temp = data_train[i:(i + _WINDOW_LEN)].copy()
     train_lstm_in.append(temp)
 train_lstm_out = train['wave'][_WINDOW_LEN:]
-
-# print('---')
-# print(train_lstm_in[:5])
-# print('---')
-# print(train_lstm_out[:5])
-
 # PandasのデータフレームからNumpy配列へ変換しましょう
 train_lstm_in = [np.array(train_lstm_input) for train_lstm_input in train_lstm_in]
 train_lstm_in = np.array(train_lstm_in)
+
+print("-----------------")
+print("type: {}".format(type(train_lstm_in)))
+print("len: {}".format(len(train_lstm_in)))
+print("shape: {}".format(train_lstm_in.shape))
+# print("head: {}".format(train_lstm_in[:5]))
+print("-----")
+print("type: {}".format(type(train_lstm_out)))
+print("len: {}".format(len(train_lstm_out)))
+print("shape: {}".format(train_lstm_out.shape))
+# print("head: {}".format(train_lstm_out[:5]))
 
 # LSTMへの入力用に処理（テスト）
 test_lstm_in = []
@@ -94,9 +79,20 @@ for i in range(len(data_test) - _WINDOW_LEN):
     temp = data_test[i:(i + _WINDOW_LEN)].copy()
     test_lstm_in.append(temp)
 test_lstm_out = test['wave'][_WINDOW_LEN:]
+# PandasのデータフレームからNumpy配列へ変換しましょう
 test_lstm_in = [np.array(test_lstm_input) for test_lstm_input in test_lstm_in]
 test_lstm_in = np.array(test_lstm_in)
 
+print("-----------------")
+print("type: {}".format(type(test_lstm_in)))
+print("len: {}".format(len(test_lstm_in)))
+print("shape: {}".format(test_lstm_in.shape))
+# print("head: {}".format(test_lstm_in[:5]))
+print("-----")
+print("type: {}".format(type(test_lstm_out)))
+print("len: {}".format(len(test_lstm_out)))
+print("shape: {}".format(test_lstm_out.shape))
+# print("head: {}".format(test_lstm_out[:5]))
 
 ##############
 # モデル作成 #
@@ -161,16 +157,14 @@ else:
 ax1.set_xlabel('# Epochs', fontsize=12)
 plt.show()
 
-_model.save("lstm.model")
+open('lstm.json', "w").write(_model.to_json())      # モデルの保存
+_model.save_weights('lstm.h5')                      # 学習済みの重みを保存
 
 ########
 # 予測 #
 ########
 
 predicted = _model.predict(test_lstm_in)
-in_d = pd.DataFrame(test_lstm_in)
-in_d.plot()
-plt.show()
 
 print(predicted[:5])
 dataf = pd.DataFrame(predicted)
