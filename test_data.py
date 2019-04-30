@@ -74,29 +74,27 @@ def get_data_dont_use():
 
 
 def get_data():
-    return sin_wave(begin=0, cycle=2, n=100)
+    return noisy_sin_wave(begin=0, cycle=2, n=100)
 
 
 def sin_wave(begin=0, cycle=1, n=100):
     _x = np.linspace(begin, 2 * np.pi * cycle, n)
-    _data = pd.Series(np.sin(_x), index=_x)
-    # _data.plot(color=('b'))
-    # plt.show()
+    _y = pd.Series(np.sin(_x), index=list(range(n)))
+    _data = pd.DataFrame({'x': _x, 'wave': _y})
     return _data
 
 
 def noisy_sin_wave(begin=0, cycle=1, n=100):
     _s = sin_wave(begin, cycle, n)
-    _noise = _s + 0.1 * np.random.randn(n)
-    # sdf = pd.DataFrame({'sin wave': _s, 'noise wave': _noise})
-    sdf = pd.DataFrame({'noise wave': _noise})
-    # sdf.plot(color=('r'))
-    # plt.show()
-    return sdf
+    _noise = pd.Series(np.sin(_s['wave']) + 0.1 * np.random.randn(n), index=list(range(n)))
+    _n = pd.DataFrame({'noisy wave': _noise})
+    _data = pd.concat([_s, _n], axis=1)
+    return _data
 
 
 if __name__ == "__main__":
     x = get_data()
-    # print(x.head())
-    # x.plot(label=u"データ")
+    print(x.shape)
+    print(x.head())
+    # x.plot(color=('r', 'b', 'g'))
     # plt.show()
