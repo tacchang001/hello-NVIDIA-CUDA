@@ -13,6 +13,9 @@ import pandas as pd
 import math
 import random
 
+import matplotlib
+matplotlib.use('TkAgg')
+
 
 def sin(x, T=100):
     return np.sin(2.0 * np.pi * x / T)
@@ -41,13 +44,9 @@ def make_dataset(low_data, n_prev=100):
 f = toy_problem()
 
 g, h = make_dataset(f)
-
-future_test = g[175].T
-
-# 1つの学習データの時間の長さ -> 25
-time_length = future_test.shape[1]
-# 未来の予測データを保存していく変数
-future_result = np.empty((0))
+print("g.type: {}".format(type(g)))
+print("g.shape: {}".format(g.shape))
+print("g.head: {}", format(g[:5]))
 
 length_of_sequence = g.shape[1]
 in_out_neurons = 1
@@ -73,9 +72,22 @@ model.fit(g, h,
 # 予測
 predicted = model.predict(g)
 
+future_test = g[175].T
+print("future_test.type: {}".format(type(future_test)))
+print("future_test.shape: {}".format(future_test.shape))
+print("future_test.head: {}", format(future_test[:5]))
+
+# 1つの学習データの時間の長さ -> 25
+time_length = future_test.shape[1]
+# 未来の予測データを保存していく変数
+future_result = np.empty((0))
+
 # 未来予想
 for step2 in range(400):
     test_data = np.reshape(future_test, (1, time_length, 1))
+    # print("test_data.type: {}".format(type(test_data)))
+    # print("test_data.shape: {}".format(test_data.shape))
+    # print("test_data.head: {}", format(test_data[:5]))
     batch_predict = model.predict(test_data)
 
     future_test = np.delete(future_test, 0)

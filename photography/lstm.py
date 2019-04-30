@@ -10,6 +10,8 @@ from keras.models import Sequential
 from keras.layers import Activation, Dense
 from keras.layers import LSTM
 from keras.layers import Dropout
+from keras.optimizers import Adam
+from keras.callbacks import EarlyStopping
 
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
@@ -32,7 +34,7 @@ df = get_data()
 # print(df.columns)
 # print(df.head())
 
-del df['x']
+# del df['x']
 
 ##############
 # データ加工 #
@@ -42,7 +44,7 @@ del df['x']
 n = df.shape[0]
 p = df.shape[1]
 train_start = 0
-train_end = int(np.floor(0.8*n))
+train_end = int(np.floor(0.8 * n))
 test_start = train_end + 1
 test_end = n
 train = df.loc[np.arange(train_start, train_end), :]
@@ -95,20 +97,29 @@ test_lstm_out = test['wave'][_WINDOW_LEN:]
 test_lstm_in = [np.array(test_lstm_input) for test_lstm_input in test_lstm_in]
 test_lstm_in = np.array(test_lstm_in)
 
+
 ##############
 # モデル作成 #
 ##############
 
 
+# def build_model(inputs, output_size, neurons, activ_func="linear",
+#                 dropout=0.25, loss="mae", optimizer="adam"):
+#     model = Sequential()
+#     model.add(LSTM(neurons, input_shape=(inputs.shape[1], inputs.shape[2])))
+#     model.add(Dropout(dropout))
+#     model.add(Dense(units=output_size))
+#     model.add(Activation(activ_func))
+#     model.compile(loss=loss, optimizer=optimizer)
+#     return model
+
+
 def build_model(inputs, output_size, neurons, activ_func="linear",
                 dropout=0.25, loss="mae", optimizer="adam"):
     model = Sequential()
-
     model.add(LSTM(neurons, input_shape=(inputs.shape[1], inputs.shape[2])))
-    model.add(Dropout(dropout))
     model.add(Dense(units=output_size))
     model.add(Activation(activ_func))
-
     model.compile(loss=loss, optimizer=optimizer)
     return model
 
@@ -117,63 +128,53 @@ def build_model(inputs, output_size, neurons, activ_func="linear",
 np.random.seed(202)
 
 # 初期モデルの構築
-yen_model = build_model(train_lstm_in, output_size=1, neurons=20)
-
+_model = build_model(
+    train_lstm_in,
+    output_size=1,
+    neurons=20
+)
+early_stopping = EarlyStopping(
+    monitor='loss',
+    mode='min',
+    patience=20
+)
 # データを流してフィッティングさせましょう
-yen_history = yen_model.fit(train_lstm_in, train_lstm_out,
-                            epochs=50, batch_size=1, verbose=2, shuffle=True)
+_history = _model.fit(
+    train_lstm_in, train_lstm_out,
+    epochs=50,
+    batch_size=1,
+    verbose=2,
+    shuffle=True,
+    callbacks=[early_stopping]
+)
 
 # MAEをプロットしてみよう
 fig, ax1 = plt.subplots(1, 1)
 
-ax1.plot(yen_history.epoch, yen_history.history['loss'])
+ax1.plot(_history.epoch, _history.history['loss'])
 ax1.set_title('TrainingError')
 
-if yen_model.loss == 'mae':
+if _model.loss == 'mae':
     ax1.set_ylabel('Mean Absolute Error (MAE)', fontsize=12)
 else:
     ax1.set_ylabel('Model Loss', fontsize=12)
 ax1.set_xlabel('# Epochs', fontsize=12)
 plt.show()
 
-# _TIME_STEPS = 5
-#
-# _BATCH_SIZE = 10
-# _EPOCH_SIZE = 50
-# _HIDDEN = 25
-# _ACTIVATION = "tanh"
-#
-# n_in = len(x_train[0][0])  # 入力の次元 = 1
-# n_out = len(y_train[0])  # 出力の次元 = 1
-#
-# model = Sequential()
-# model.add(LSTM(units=_HIDDEN,
-#                kernel_initializer=weight_variable,  # kernel_initializer:重みの初期化方法
-#                input_dim=n_in,  # 入力の次元.入力層のノード数
-#                input_length=_MAXLEN))  # 入力系列の長さ
-# model.add(Dense(n_out, kernel_initializer=weight_variable))
-# model.add(Activation('linear'))  # y=αxのような線形関数
+_model.save("lstm.model")
 
-##############
-# 学習の実行 #
-##############
+########
+# 予測 #
+########
 
-# http://qiita.com/shima_x/items/321e90564da38f3033b2
-# optimizer = Adam(lr=0.001, beta_1=0.9, beta_2=0.999)
-# model.compile(optimizer=optimizer,
-#               loss='mean_squared_error',
-#               metrics=['accuracy'])
-#
-# # 監視する値の変化が停止した時に訓練を終了する。
-# # monitorは監視する値(val_lossはmodel.fitの中に含まれる)
-# # patience:訓練が停止し、値が改善しなくなってからのエポック数
-# # verbose:冗長モード. 1ならon. onにしてあると標準出力に「ealry stopping」というコメントが表示される。
-# early_stopping = EarlyStopping(monitor='val_loss', patience=10, verbose=1)
-#
-# history = model.fit(x_train, y_train,
-#                     batch_size=_BATCH_SIZE,
-#                     epochs=_EPOCH_SIZE,
-#                     validation_data=(x_test, y_test),
-#                     callbacks=[early_stopping])
-#
-# model.save("lstm.model")
+predicted = _model.predict(test_lstm_in)
+in_d = pd.DataFrame(test_lstm_in)
+in_d.plot()
+plt.show()
+
+print(predicted[:5])
+dataf = pd.DataFrame(predicted)
+dataf.columns = ["predict"]
+dataf["input"] = test_lstm_out
+dataf.plot()
+plt.show()

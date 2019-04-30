@@ -112,3 +112,4 @@ venv.bak/
 # DeepLearning
 *.h5
 *.model
+*.json
