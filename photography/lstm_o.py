@@ -3,18 +3,9 @@
 # TensorflowでNN
 # http://www.algo-fx-blog.com/tensorflow-neural-network-fx/
 
-import numpy as np
 import pandas as pd
-
-from keras.models import Sequential, model_from_json
-from keras.layers import Activation, Dense
-from keras.layers import LSTM
-from keras.layers import Dropout
-from keras.optimizers import Adam
-from keras.callbacks import EarlyStopping
-
+from keras.models import model_from_json
 import matplotlib.pyplot as plt
-
 from test_data import get_data_for_lstm
 
 
