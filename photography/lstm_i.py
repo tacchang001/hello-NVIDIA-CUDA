@@ -15,7 +15,7 @@ from keras.callbacks import EarlyStopping
 
 import matplotlib.pyplot as plt
 
-from test_data import get_data
+from test_data import get_data_for_lstm
 
 
 def draw_mae(model, history):
@@ -42,52 +42,13 @@ def draw_mae(model, history):
 # 定数定義 #
 ############
 
-# windowを設定
-_WINDOW_LEN = 10
 
 ##############
 # データ取得 #
 ##############
 
-df = get_data()
-# df.plot()
-# plt.show()
 
-##############
-# データ加工 #
-##############
-
-
-def make_data_for_lstm(in_data):
-    _lstm_in = []
-    _data = pd.DataFrame({'noisy wave': in_data['noisy wave']})
-    for i in range(len(_data) - _WINDOW_LEN):
-        temp = _data[i:(i + _WINDOW_LEN)].copy()
-        _lstm_in.append(temp)
-    _lstm_in = [np.array(_lstm_input) for _lstm_input in _lstm_in]
-    _lstm_in = np.array(_lstm_in)
-    _lstm_out = in_data['wave'][_WINDOW_LEN:]
-    _lstm_out = [np.array(_lstm_output) for _lstm_output in _lstm_out]
-    _lstm_out = np.array(_lstm_out)
-
-    return _lstm_in, _lstm_out
-
-
-# 訓練データとテストデータへ切り分け
-n = df.shape[0]
-p = df.shape[1]
-train_start = 0
-train_end = int(np.floor(0.5 * n))
-test_start = train_end + 1
-test_end = n
-train = df.loc[np.arange(train_start, train_end), :]
-test = df.loc[np.arange(test_start, test_end), :]
-
-# LSTMへの入力用に処理（訓練）
-train_lstm_in, train_lstm_out = make_data_for_lstm(train)
-
-# LSTMへの入力用に処理（テスト）
-test_lstm_in, test_lstm_out = make_data_for_lstm(test)
+exp, obj = get_data_for_lstm()
 
 ##############
 # モデル作成 #
@@ -109,7 +70,7 @@ np.random.seed(202)
 
 # 初期モデルの構築
 _model = build_model(
-    train_lstm_in,
+    exp,
     output_size=1,
     neurons=20
 )
@@ -120,7 +81,7 @@ early_stopping = EarlyStopping(
 )
 # データを流してフィッティングさせましょう
 _history = _model.fit(
-    train_lstm_in, train_lstm_out,
+    exp, obj,
     epochs=50,
     batch_size=1,
     verbose=2,
@@ -129,23 +90,8 @@ _history = _model.fit(
 )
 
 # 平均絶対誤差（MAE：Mean Absolute Error）
-# draw_mae(_model, _history)
+draw_mae(_model, _history)
 
 open('lstm.json', "w").write(_model.to_json())      # モデルの保存
 _model.save_weights('lstm.h5')                      # 学習済みの重みを保存
 
-########
-# 予測 #
-########
-
-model = model_from_json(open('lstm.json', 'r').read())      # モデルの読み込み
-model.load_weights('lstm.h5')                               # 重みの読み込み
-
-predicted = model.predict(test_lstm_in)
-
-p = pd.DataFrame(predicted)
-p.columns = ["predict"]
-p['input'] = test_lstm_out
-print(p.head())
-p.plot()
-plt.show()

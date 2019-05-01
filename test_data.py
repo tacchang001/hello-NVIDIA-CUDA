@@ -73,8 +73,24 @@ def get_data_dont_use():
     return lstm_data
 
 
-def get_data():
-    return noisy_sin_wave(begin=0, cycle=4, n=100)
+def get_data_for_lstm():
+    # windowを設定
+    _WINDOW_LEN = 10
+
+    df = noisy_sin_wave(begin=0, cycle=4, n=100)
+
+    _lstm_in = []
+    _data = pd.DataFrame({'noisy wave': df['noisy wave']})
+    for i in range(len(_data) - _WINDOW_LEN):
+        temp = _data[i:(i + _WINDOW_LEN)].copy()
+        _lstm_in.append(temp)
+    _lstm_in = [np.array(_lstm_input) for _lstm_input in _lstm_in]
+    _lstm_in = np.array(_lstm_in)
+    _lstm_out = df['wave'][_WINDOW_LEN:]
+    _lstm_out = [np.array(_lstm_output) for _lstm_output in _lstm_out]
+    _lstm_out = np.array(_lstm_out)
+
+    return _lstm_in, _lstm_out
 
 
 def sin_wave(begin=0, cycle=1, n=100):
@@ -92,9 +108,36 @@ def noisy_sin_wave(begin=0, cycle=1, n=100):
     return _data
 
 
+##############
+# データ加工 #
+##############
+
+# 訓練データとテストデータへ切り分け
+# n = df.shape[0]
+# p = df.shape[1]
+# train_start = 0
+# train_end = int(np.floor(0.5 * n))
+# test_start = train_end + 1
+# test_end = n
+# train = df.loc[np.arange(train_start, train_end), :]
+# test = df.loc[np.arange(test_start, test_end), :]
+#
+# # LSTMへの入力用に処理（訓練）
+# train_lstm_in, train_lstm_out = make_data_for_lstm(train)
+#
+# # LSTMへの入力用に処理（テスト）
+# test_lstm_in, test_lstm_out = make_data_for_lstm(test)
+
+
 if __name__ == "__main__":
-    x = get_data()
-    print(x.shape)
-    print(x.head())
+    exp, obj = get_data_for_lstm()
+    print('actual:')
+    print(type(exp))
+    print(exp.shape)
+    print(exp[0:2])
+    print('expect:')
+    print(type(obj))
+    print(obj.shape)
+    print(obj[0:2])
     # x.plot(color=('r', 'b', 'g'))
     # plt.show()
