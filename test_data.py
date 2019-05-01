@@ -78,6 +78,10 @@ def get_data_for_lstm():
     _WINDOW_LEN = 10
 
     df = noisy_sin_wave(begin=0, cycle=4, n=100)
+    # print('----')
+    # print(df)
+    # df.plot()
+    # plt.show()
 
     _lstm_in = []
     _data = pd.DataFrame({'noisy wave': df['noisy wave']})
@@ -130,14 +134,27 @@ def noisy_sin_wave(begin=0, cycle=1, n=100):
 
 
 if __name__ == "__main__":
-    exp, obj = get_data_for_lstm()
+    feature, target = get_data_for_lstm()
     print('actual:')
-    print(type(exp))
-    print(exp.shape)
-    print(exp[0:2])
+    print(type(feature))
+    print(feature.shape)
+    print(feature[0:2])
     print('expect:')
-    print(type(obj))
-    print(obj.shape)
-    print(obj[0:2])
-    # x.plot(color=('r', 'b', 'g'))
+    print(type(target))
+    print(target.shape)
+    print(target[0:2])
+
+    # print('---')
+    # axis1 = feature[:, 0]
+    # print(axis1)
+    #
+    # x = np.arange(0, len(axis1), 1)
+    # plt.plot(x, axis1)
+    #
+    # print('---')
+    # for i in np.arange(9):
+    #     axis2 = feature[:, i]
+    #     print(axis2)
+    #     plt.plot(x, axis2)
+    #
     # plt.show()
