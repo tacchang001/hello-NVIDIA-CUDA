@@ -21,6 +21,7 @@ from test_data import get_data_for_lstm
 def draw_mae(model, history):
     """
     平均絶対誤差（MAE：Mean Absolute Error）グラフを描画する
+    :param model:
     :param history:
     :return:
     """
