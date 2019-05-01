@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 from test_data import get_data
 
 
-def draw_mae(history):
+def draw_mae(model, history):
     """
     平均絶対誤差（MAE：Mean Absolute Error）グラフを描画する
     :param history:
@@ -30,12 +30,13 @@ def draw_mae(history):
     ax1.plot(history.epoch, history.history['loss'])
     ax1.set_title('TrainingError')
 
-    if _model.loss == 'mae':
+    if model.loss == 'mae':
         ax1.set_ylabel('Mean Absolute Error (MAE)', fontsize=12)
     else:
         ax1.set_ylabel('Model Loss', fontsize=12)
     ax1.set_xlabel('# Epochs', fontsize=12)
     plt.show()
+
 
 ############
 # 定数定義 #
@@ -49,8 +50,8 @@ _WINDOW_LEN = 10
 ##############
 
 df = get_data()
-df.plot()
-plt.show()
+# df.plot()
+# plt.show()
 
 ##############
 # データ加工 #
@@ -66,6 +67,8 @@ def make_data_for_lstm(in_data):
     _lstm_in = [np.array(_lstm_input) for _lstm_input in _lstm_in]
     _lstm_in = np.array(_lstm_in)
     _lstm_out = in_data['wave'][_WINDOW_LEN:]
+    _lstm_out = [np.array(_lstm_output) for _lstm_output in _lstm_out]
+    _lstm_out = np.array(_lstm_out)
 
     return _lstm_in, _lstm_out
 
@@ -89,17 +92,6 @@ test_lstm_in, test_lstm_out = make_data_for_lstm(test)
 ##############
 # モデル作成 #
 ##############
-
-
-# def build_model(inputs, output_size, neurons, activ_func="linear",
-#                 dropout=0.25, loss="mae", optimizer="adam"):
-#     model = Sequential()
-#     model.add(LSTM(neurons, input_shape=(inputs.shape[1], inputs.shape[2])))
-#     model.add(Dropout(dropout))
-#     model.add(Dense(units=output_size))
-#     model.add(Activation(activ_func))
-#     model.compile(loss=loss, optimizer=optimizer)
-#     return model
 
 
 def build_model(inputs, output_size, neurons, activ_func="linear",
@@ -137,7 +129,7 @@ _history = _model.fit(
 )
 
 # 平均絶対誤差（MAE：Mean Absolute Error）
-# draw_mae(_history)
+# draw_mae(_model, _history)
 
 open('lstm.json', "w").write(_model.to_json())      # モデルの保存
 _model.save_weights('lstm.h5')                      # 学習済みの重みを保存
@@ -151,8 +143,9 @@ model.load_weights('lstm.h5')                               # 重みの読み込
 
 predicted = model.predict(test_lstm_in)
 
-dataf = pd.DataFrame(predicted)
-dataf.columns = ["predict"]
-dataf["input"] = test_lstm_out
-dataf.plot()
+p = pd.DataFrame(predicted)
+p.columns = ["predict"]
+p['input'] = test_lstm_out
+print(p.head())
+p.plot()
 plt.show()

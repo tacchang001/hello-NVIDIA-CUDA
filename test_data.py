@@ -80,7 +80,7 @@ def get_data():
 def sin_wave(begin=0, cycle=1, n=100):
     _x = np.linspace(begin, 2 * np.pi * cycle, n)
     _y = pd.Series(np.sin(_x), index=list(range(n)))
-    _data = pd.DataFrame({'x': _x, 'wave': _y})
+    _data = pd.DataFrame({'wave': _y})
     return _data
 
 
