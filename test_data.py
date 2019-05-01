@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -78,6 +79,7 @@ def get_data_for_lstm():
     _WINDOW_LEN = 10
 
     df = noisy_sin_wave(begin=0, cycle=4, n=100)
+    df = (df - df.min()) / (df.max() - df.min())
     # print('----')
     # print(df)
     # df.plot()
@@ -88,9 +90,10 @@ def get_data_for_lstm():
     for i in range(len(_data) - _WINDOW_LEN):
         temp = _data[i:(i + _WINDOW_LEN)].copy()
         _lstm_in.append(temp)
+    _lstm_out = df['wave'][_WINDOW_LEN:]
+
     _lstm_in = [np.array(_lstm_input) for _lstm_input in _lstm_in]
     _lstm_in = np.array(_lstm_in)
-    _lstm_out = df['wave'][_WINDOW_LEN:]
     _lstm_out = [np.array(_lstm_output) for _lstm_output in _lstm_out]
     _lstm_out = np.array(_lstm_out)
 
