@@ -21,8 +21,8 @@ exp, obj = get_data_for_lstm()
 # 予測 #
 ########
 
-model = model_from_json(open('lstm.json', 'r').read())      # モデルの読み込み
-model.load_weights('lstm.h5')                               # 重みの読み込み
+model = model_from_json(open('lstm_01.json', 'r').read())      # モデルの読み込み
+model.load_weights('lstm_01.h5')                               # 重みの読み込み
 
 predicted = model.predict(exp)
 

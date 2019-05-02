@@ -93,6 +93,6 @@ _history = _model.fit(
 # 平均絶対誤差（MAE：Mean Absolute Error）
 draw_mae(_model, _history)
 
-open('lstm.json', "w").write(_model.to_json())      # モデルの保存
-_model.save_weights('lstm.h5')                      # 学習済みの重みを保存
+open('lstm_01.json', "w").write(_model.to_json())      # モデルの保存
+_model.save_weights('lstm_01.h5')                      # 学習済みの重みを保存
 

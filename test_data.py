@@ -55,8 +55,8 @@ def get_data_for_lstm():
     df = (df - df.min()) / (df.max() - df.min())  # min-max normalization
     # print('----')
     # print(df)
-    df.plot()
-    plt.show()
+    # df.plot()
+    # plt.show()
 
     _lstm_in = []
     _data = pd.DataFrame({'noisy wave': df['noisy wave']})

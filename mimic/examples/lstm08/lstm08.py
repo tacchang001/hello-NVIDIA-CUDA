@@ -23,7 +23,6 @@ matplotlib.use('TkAgg')
 dataframe = pandas.read_csv('tokyo-weather-2003-2012.csv', usecols=[0, 3, 4, 5, 6], engine='python', skipfooter=1)
 plt.plot(dataframe)
 plt.show()
-print(dataframe.head())
 
 # -------------------------------------------------------------
 dataset = dataframe.values
@@ -67,6 +66,10 @@ print(testY)
 # reshape input to be [samples, time steps(number of variables), features] *convert time series into column
 trainX = numpy.reshape(trainX, (trainX.shape[0], trainX.shape[1], trainX.shape[2]))
 testX = numpy.reshape(testX, (testX.shape[0], testX.shape[1], testX.shape[2]))
+
+##########################################################################################
+exit()
+##########################################################################################
 
 # -------------------------------------------------------------
 
