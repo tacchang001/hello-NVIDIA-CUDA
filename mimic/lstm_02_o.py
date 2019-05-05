@@ -74,18 +74,19 @@ testY = scaler.inverse_transform(pad_array(testY))
 
 # calculate root mean squared error
 testScore = math.sqrt(mean_squared_error(testY[:, 0], testPredict[:, 0]))
-print('Test Score: %.2f RMSE' % (testScore))
+print('Test Score: %.2f RMSE' % testScore)
 
 # -------------------------------------------------------------
 
 print(testY[:, 0])
-# print(testPredict[:, 0])
+print(testPredict[:, 0])
 # shift test predictions for plotting
-testPredictPlot = numpy.empty_like(dataset)
-testPredictPlot[:, :] = numpy.nan
-# TODO: なんで１たさないといけないかわかっていない
-testPredictPlot[look_back + 1:len(testPredictPlot) + look_back, :] = testPredict
+# testPredictPlot = numpy.empty_like(dataset)
+# testPredictPlot[:, :] = numpy.nan
+# testPredictPlot[look_back + 1:len(testPredictPlot) + look_back, :] = testPredict
 # plot baseline and predictions
-plt.plot(scaler.inverse_transform(dataset))
-plt.plot(testPredictPlot)
+# plt.plot(scaler.inverse_transform(dataset))
+# plt.plot(testPredictPlot)
+plt.plot(testY[:, 0])
+plt.plot(testPredict[:, 0])
 plt.show()
